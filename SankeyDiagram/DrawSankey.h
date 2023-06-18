@@ -46,17 +46,22 @@ void drawLines(cairo_t* cr, SankeyGraph* grapHeader, int totalLevels, int height
 
 		for (int i = 0; i < currGraph->firstEl; i++) {
 			double red, green, blue;
+			double fYpos = getEvenSpaces(height, i, currGraph->firstEl);
+			double currMaxValue = currGraph->startingValues[i];
+
+			/*cairo_move_to(cr, currXpos, fYpos - currMaxValue);
+			cairo_set_source_rgb(cr, 1, 1, 1);
+			cairo_show_text(cr, "ajajaja");*/
+
 			randomizeColor(&red, &green, &blue);
 			double prevValue = 0;
 
 			for (int j = 0; j < currGraph->secEl; j++) {
 				if (currGraph->graph[i][j] > 0) {
-					double currMaxValue = currGraph->startingValues[i];
 					double endMaxValue = currGraph->endValues[j];
 
 					double currValue = currGraph->graph[i][j];
 
-					double fYpos = getEvenSpaces(height, i, currGraph->firstEl);
 					double sYpos = getEvenSpaces(height, j, currGraph->secEl);
 
 					double startingYPos = fYpos - currMaxValue/2;
@@ -67,18 +72,9 @@ void drawLines(cairo_t* cr, SankeyGraph* grapHeader, int totalLevels, int height
 					double drawingYpos = (startingYPos + currValue / 2) + prevValue;
 					double endDrawYpos = (endYpos + currValue / 2) + prevEndValue[j];
 						
-					printf("startval %.2lf\n", currMaxValue);
 					//printf("endval %.2lf\n", endDrawYpos);
-
-
 					cairo_move_to(cr, currXpos, drawingYpos);
-					/*cairo_set_source_rgb(cr, 1, 1, 1);
-
-					char outputText[32];
-					sprintf(outputText, "%.2f", drawingYpos);*/
-
-
-					//cairo_show_text(cr, outputText);
+					
 					cairo_set_source_rgba(cr, red, green, blue, 0.5);
 					cairo_curve_to(cr, controlPoint, drawingYpos, controlPoint, endDrawYpos, nextXpos, endDrawYpos);
 

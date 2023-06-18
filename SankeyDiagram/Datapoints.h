@@ -201,25 +201,121 @@ void createGraph(SankeyLevel* levelHeader, SankeyGraph** graphHeader) {
 }
 
 void addLinkToGraph(SankeyGraph* graph, int start, int end, double value) {
-    if (graph == NULL || graph->graph == NULL || start < 0 || end < 0 || start >= graph->firstEl || end >= graph->secEl) {
-        printf("Invalid link\n");
-        return;
-    }
 
-    // Set the value at the specified indices to represent the link
-    graph->graph[start][end] = value;
-    graph->startingValues[start] += value;
-    graph->endValues[end] += value;
-    graph->totalValue += value;
     
     
 }
 
+void deleteNode(SankeyLevel** levelHead, int levelInput, int nodeIndex)
+{
+    if (*levelHead == NULL)
+    {
+        printf("Invalid Level");
+        return;
+    }
+
+    SankeyLevel* currLevel = *levelHead;
+    SankeyLevel* prevLevel = NULL;
+
+    while (currLevel != NULL && currLevel->level != levelInput)
+    {
+        prevLevel = currLevel;
+        currLevel = currLevel->next;
+    }
+
+    if (currLevel == NULL)
+    {
+        printf("Invalid Level");
+        return;
+    }
+
+    SankeyNode* currNode = currLevel->sankeyNodeHead;
+    SankeyNode* prevNode = NULL;
+
+    while (currNode != NULL && currNode->index != nodeIndex)
+    {
+        prevNode = currNode;
+        currNode = currNode->next;
+    }
+
+    if (currNode == NULL)
+    {
+        printf("Invalid Node");
+        return;
+    }
+
+    if (prevNode == NULL)
+    {
+        currLevel->sankeyNodeHead = currNode->next;
+    }
+    else
+    {
+        prevNode->next = currNode->next;
+    }
+
+    free(currNode);
+
+    if (currLevel->sankeyNodeHead == NULL)
+    {
+        if (prevLevel == NULL)
+        {
+            *levelHead = currLevel->next;
+        }
+        else
+        {
+            prevLevel->next = currLevel->next;
+        }
+
+        free(currLevel);
+    }
+}
+
+void deleteLevel(SankeyLevel** levelHead, int level) {
+    SankeyLevel* currLevel = *levelHead;
+    SankeyLevel* prevLevel = NULL;
+
+    // Traverse to the specified level
+    while (currLevel != NULL && currLevel->level != level) {
+        prevLevel = currLevel;
+        currLevel = currLevel->next;
+    }
+
+    // If level found, delete it
+    if (currLevel != NULL) {
+        // Update the previous level's next pointer
+        if (prevLevel != NULL) {
+            prevLevel->next = currLevel->next;
+        }
+        else {
+            *levelHead = currLevel->next;
+        }
+
+        // Free memory for nodes in the level
+        SankeyNode* currNode = currLevel->sankeyNodeHead;
+        while (currNode != NULL) {
+            SankeyNode* nextNode = currNode->next;
+            free(currNode);
+            currNode = nextNode;
+        }
+
+        // Free memory for the level itself
+        free(currLevel);
+
+        printf("Level %d deleted.\n", level);
+    }
+    else {
+        printf("Level %d not found.\n", level);
+    }
+}
+
+
+
 void printGraph(SankeyGraph* graphHeader) {
     SankeyGraph* currentGraph = graphHeader;
+    int currLevel = 1;
 
     while (currentGraph != NULL) {
-        printf("Graph:\n");
+        printf("Level %d to %d:\n", currLevel, currLevel+1);
         printf("Size: %d, %d\n\n", currentGraph->firstEl, currentGraph->secEl);
 
         for (int i = 0; i < currentGraph->firstEl; i++) {
@@ -232,5 +328,6 @@ void printGraph(SankeyGraph* graphHeader) {
         printf("\n");
 
         currentGraph = currentGraph->next;
+        currLevel++;
     }
 }
