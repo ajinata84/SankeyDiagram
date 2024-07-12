@@ -1,1 +1,1 @@
-Sankey Digram Generator using C
+# Sankey Digram Generator using C
